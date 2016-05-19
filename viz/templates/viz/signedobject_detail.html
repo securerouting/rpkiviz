@@ -1,0 +1,63 @@
+{% extends "cacheview/cacheview_base.html" %}
+
+{% block content %}
+
+<h1>{% block title %}Signed Object Detail{% endblock %}</h1>
+
+<h2>Cert Info</h2>
+<table class='table table-striped'>
+    <tr><td>Subject Name</td><td>{{ object.subject_name }}</td></tr>
+    <tr><td>SKI</td><td>{{ object.ski }}</td></tr>
+    {% if object.aki %}
+    <tr><td>AKI</td><td>{{ object.aki }}</td></tr>
+    {% endif %}
+    {% if object.sia %}
+    <tr><td>SIA</td><td>{{ object.sia }}</td></tr>
+    {% endif %}
+    <tr><td>Not Before</td><td>{{ object.not_before }}</td></tr>
+    <tr><td>Not After</td><td>{{ object.not_after }}</td></tr>
+</table>
+
+<h2>Metadata</h2>
+
+<table class='table table-striped'>
+    <tr><td>URI</td><td>{{ validation.uri }}</td></tr>
+    <tr><td>Epoch</td><td>{{ epoch.when }}</td></tr>
+</table>
+
+<h2>Validation Status</h2>
+<table class='table table-striped'>
+  <thead>
+    <tr><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for status in validation.statuses.all %}
+    <tr>
+    <td>{{ status.status }}</td>
+  </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>X.509 Certificate Chain</h2>
+
+<table class='table table-striped'>
+  <thead>
+	  <tr><th>Depth</th><th>SKI</th><th>Subject</th></tr>
+  </thead>
+  <tbody>
+
+{% for cert in chain %}
+<tr>
+    <td>{{ cert.0 }}</td>
+    <td><a href="{% url 'cert-detail' pk=cert.1.pk epoch=epoch.pk %}">{{ cert.1.ski }}</a></td>
+    <td>{{ cert.1.subject_name }}</td>
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+
+{% block detail %}{% endblock %}
+
+{% endblock %}

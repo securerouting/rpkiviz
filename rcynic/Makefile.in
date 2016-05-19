@@ -1,0 +1,13 @@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+
+all: rcynic
+
+rcynic:
+	gcc -O2 -m64 -I./h $(CFLAGS) -o rcynic rcynic.c bio_f_linebreak.c $(LIBS)
+
+clean:
+	rm -f rcynic
+
+distclean: clean
+	rm Makefile

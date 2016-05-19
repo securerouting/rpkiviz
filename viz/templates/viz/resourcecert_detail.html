@@ -1,0 +1,128 @@
+{% extends "cacheview/signedobject_detail.html" %}
+
+{% block title %}
+Resource Certificate Detail
+{% endblock %}
+
+{% block detail %}
+
+<h2>RFC3779 Resources</h2>
+
+<table>
+  <thead>
+    <tr><th>AS Ranges</th><th>IP Ranges</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+        <td style='text-align:left;vertical-align:top'>
+            <ul class='compact'>
+		    {% if object.inherit_asn %}
+		    inherit
+		    {% endif %}
+                {% for asn in object.asns.all %}
+                <li>{{ asn }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+        <td style='text-align:left;vertical-align:top'>
+            <ul class='compact'>
+		    {% if object.inherit_v4 %}
+		    v4:inherit
+		    {% endif %}
+		    {% if object.inherit_v6 %}
+		    v6:inherit
+		    {% endif %}
+                {% for rng in object.addresses.all %}
+                <li>{{ rng }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Issued Objects</h2>
+
+{% if ghostbusters.all %}
+<h3>Ghostbusters</h3>
+
+<table>
+  <thead>
+    <tr><th>Name</th><th>Expires</th></tr>
+  </thead>
+  <tbody>
+
+{% for g in ghostbusters.all %}
+<tr>
+        <td><a href="{% url 'gbr-detail' pk=g.pk epoch=epoch.pk %}">{{ g }}</a></td>
+        <td>{{ g.not_after }}</td>
+    </tr>
+  </tbody>
+{% endfor %}
+
+</table>
+{% endif %}
+
+{% if roas.all %}
+<h3>ROAs</h3>
+<table>
+  <thead>
+    <tr><th>#</th><th>Prefix</th><th>AS</th><th>Expires</th></tr>
+  </thead>
+  <tbody>
+    {% for roa in roas.all %}
+    {% for pfx in roa.prefixes.all %}
+    <tr>
+        <td><a href="{% url 'roa-detail' epoch=epoch.pk pk=roa.pk %}">#</a></td>
+        <td>{{ pfx }}</td>
+        <td>{{ roa.asid }}</td>
+        <td>{{ roa.not_after }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if children.all %}
+<h3>Children</h3>
+<table>
+  <thead>
+	  <tr><th>SKI</th><th>Expires</th></tr>
+  </thead>
+  <tbody>
+
+    {% for child in children.all %}
+    <tr>
+        <td><a href="{% url 'cert-detail' pk=child.pk epoch=epoch.pk %}">{{ child.ski }}</a></td>
+        <td>{{ child.not_after }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<H3>Invalid Objects</H3>
+
+<table>
+	<thead>
+		<th>URI</th>
+		<th>Status</th>
+	</thead>
+	<tbody>
+{% for obj in invalid %}
+<tr>
+<td>{{ obj.uri }}</td>
+<td>
+	<ul>
+{% for status in obj.statuses.all %}
+<li>{{ status.label }}
+{% endfor %}
+</ul>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+SUBDIRS=ext rcynic
+OPENSSL_VERSION=1.0.2h
+EXTRA_TARGETS=@EXTRA_TARGETS@
+CLEANFILES=*/*.pyc */*/*.pyc rpki/POW/_POW.so openssl openssl-$(OPENSSL_VERSION)
+DISTCLEANFILES=$(CLEANFILES) Makefile config.status config.log autom4te.cache
+
+all: $(EXTRA_TARGETS)
+	for d in $(SUBDIRS); do make -C $$d $@; done
+
+Makefile: Makefile.in
+	autoconf
+
+openssl/libcrypto.a:
+	tar axf openssl-$(OPENSSL_VERSION).tar.gz
+	ln -s openssl-$(OPENSSL_VERSION) openssl
+	cd openssl && ./config shared no-dso enable-rfc3779
+	make -C openssl depend
+	make -C openssl build_libcrypto
+
+clean:
+	for d in $(SUBDIRS); do make -C $$d clean; done
+	rm -rf $(CLEANFILES)
+
+distclean:
+	for d in $(SUBDIRS); do make -C $$d distclean; done
+	rm -rf $(DISTCLEANFILES)

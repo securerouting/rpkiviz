@@ -1,0 +1,57 @@
+# RPKIviz - Resource PKI (RPKI) Cache Browser/Visualizer
+
+## Synopsis
+
+Loads the output of a RPKI relying party validator into a
+database, and provides a web interface for searching and browsing
+the RPKI cache.
+
+## Requirements
+
+### Fedora/CentOS 7 or later
+
+    # yum install python-devel openssl-devel python-pip python-vojbect graphviz-python
+
+### Ubuntu 15.10 or later
+
+    # apt install python-dev python-pip python-vobject libgv-python
+
+## Install Django
+
+Install a recent version of Django (1.9 or later)
+
+    # pip install django
+
+## Build
+
+    $ ./configure
+    $ make
+
+This compiles rcynic and and Python extension for parsing X.509
+certificates.
+
+## Updating the RPKI Cache
+
+    $ ./update.sh
+
+The update scripts runs rcynic to fetch the RPKI data and validate
+it, then invokes the parse.sh script to import the data into the
+database.
+
+## Viewing the RPKI Cache
+
+    $ ./manage.py runserver 0.0.0.0:8000
+
+This launches a web server on port 8000.  Open a web browser
+and navigate to:
+
+    http://127.0.0.1:8000/viz/browse/
+
+It will display a page listing the RPKI trust anchors.  Use the
+search box to locate prefixes or ASNs of interest.
+
+## Additional TALs
+
+The ARIN TAL is not distributed with this software.  If you wish to use it, you
+can fetch it from https://www.arin.net/resources/rpki/tal.html and drop it into
+$top/rcynic/trust-anchors.

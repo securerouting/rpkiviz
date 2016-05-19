@@ -1,0 +1,40 @@
+{% extends "cacheview/cacheview_base.html" %}
+
+{% block content %}
+<h1>Expiring RPKI Objects</h1>
+
+<h2>Resource CA Certificates</h2>
+
+<table>
+  <thead>
+    <th>URI</th>
+    <th>Expires</th>
+  </thead>
+  <tbody>
+  {% for cert in certs %}
+  <tr>
+    <td><a href="{% url 'cert-detail' pk=cert.pk epoch=epoch.pk %}">{{ cert.uri }}</a></td>
+    <td>{{ cert.not_after|date:"Y-m-d H:i:s" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>ROAs</h2>
+<table>
+  <thead>
+    <th>Prefix</th>
+    <th>AS</th>
+    <th>Expires</th>
+  </thead>
+  <tbody>
+  {% for roa in roas %}
+  <tr>
+    <td>{{ roa.prefixes.all.0 }}</td>
+    <td><a href="{% url 'roa-detail' pk=roa.pk epoch=epoch.pk %}">AS{{ roa.asid }}</a></td>
+    <td>{{ roa.not_after|date:"Y-m-d H:i:s" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock content %}

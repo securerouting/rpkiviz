@@ -1,0 +1,37 @@
+{% extends "cacheview/cacheview_base.html" %}
+
+{% block content %}
+
+<h1>{{prefix}} History</h1>
+
+<div>
+  <b>{{ epoch_list.0.when|date:"Y-m-d H:i:s" }}</b> to <b>{% with epoch_list|last as last %} {{ last.when|date:"Y-m-d H:i:s" }} {% endwith %}</b>
+</div>
+
+<table>
+  <thead>
+    <th>When</th>
+    <th>Status</th>
+    <th>ROAs</th>
+    <th>Certs</th>
+  </thead>
+  <tbody>
+  {% for epoch in epoch_list %}
+  <tr>
+    <td>{{ epoch.when|date:"Y-m-d H:i:s" }}</td>
+    <td class='{{ epoch.status }}'>{{ epoch.status }}</td>
+    <td>
+      {% for roa in epoch.roa_list %}
+      <a href="{% url 'roa-detail' pk=roa.pk epoch=epoch.pk %}">AS{{ roa.asid }}</a>
+      {% endfor %}
+    </td>
+    <td>
+      {% for cert in epoch.cert_list %}
+      <a href="{% url 'cert-detail' pk=cert.pk epoch=epoch.pk %}" title='{{cert.uri}}'>{{ cert.ski|truncatechars:9 }}</a>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock content %}

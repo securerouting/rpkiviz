@@ -1,0 +1,24 @@
+{% extends "cacheview/cacheview_base.html" %}
+
+{% block content %}
+<h1>{% block title %}RPKI Trust Anchors{% endblock %}</h1>
+
+{{ epoch.when|date:"Y-m-d H:i:s" }}
+
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>URI</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for r in roots %}
+		<tr>
+		  <td><a href="{% url 'cert-detail' pk=r.pk epoch=epoch.pk %}">{{ r.subject_name }}</a></td>
+		  <td>{{ r.uri }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}

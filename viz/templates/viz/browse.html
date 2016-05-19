@@ -1,0 +1,177 @@
+{% extends 'viz/base.html' %}
+
+{% block content %}
+
+<div>
+Validated {{ epoch.when|date:"DATETIME_FORMAT" }} UTC
+</div>
+
+<div class='graph'>
+{% autoescape off %}
+{{ svg }}
+{% endautoescape %}
+</div>
+
+{% for cert in certs %}
+<div class='detail' id='detail-cert-{{ cert.pk }}'>
+	<b>URI:</b> {{ cert.get_uri }}<br/>
+	<b>SN:</b> {{ cert.subject_name }}<br/>
+	<b>Serial:</b> {{ cert.serial }}<br/>
+	<b>Not Before:</b> {{ cert.not_before }}<br/>
+	<b>Not After:</b> {{ cert.not_after }}<br/>
+	<b>SKI:</b> {{ cert.ski }}<br/>
+	{% if cert.aki %}
+	<b>AKI:</b> {{ cert.aki }}<br/>
+	{% endif %}
+	<b>SIA Directory URI:</b> {% for u in cert.sia_directory_uri.all %}{{ u }}{% endfor %}<br/>
+	<b>Manifest URI:</b> {% for u in cert.manifest_uri.all %}{{ u }}{% endfor %}<br/>
+	{% if cert.aia_uri %}
+	<b>AIA URI:</b> {{ cert.aia_uri }}<br/>
+	{% endif %}
+	{% if cert.crldp.all %}
+	<b>CRLDP:</b> {% for u in cert.crldp.all %}{{ u }}{% endfor %}<br/>
+	{% endif %}
+	<p>
+	<b>ASNs:</b> {% for asn in cert.asns.all %} {{ asn }} {% endfor %} <br/>
+	<b>Prefixes:</b> {% for addr in cert.addresses.all %} {{ addr }} {% endfor %}
+	<p>
+	<b>Status</b><br/>
+	{% for status in cert.get_status %}
+	<span class='{{ status.get_kind_display }}'>{{ status.status }}</span><br/>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% for roa in roas %}
+<div class='detail' id='detail-roa-{{ roa.pk }}'>
+	<b>URI:</b> {{ roa.get_uri }}<br/>
+	<b>SKI:</b> {{ roa.ski }}<br/>
+	<b>AKI:</b> {{ roa.aki }}<br/>
+	<b>Serial:</b> {{ roa.serial}}<br/>
+	<b>Not Before:</b> {{ roa.not_before }}<br/>
+	<b>Not After:</b> {{ roa.not_after }}<br/>
+	<p>
+	<b>AS:</b> {{ roa.asid }}<br/>
+	<b>Prefix:</b> {% for pfx in roa.prefixes.all %} {{ pfx }} {% endfor %}
+	<p>
+	<b>Status</b><br/>
+	{% for status in roa.get_status %}
+	<span class='{{ status.get_kind_display }}'>{{ status.status }}</span><br/>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% for gbr in gbrs %}
+<div class='detail' id='detail-gbr-{{ gbr.pk }}'>
+	<b>URI:</b> {{ gbr.get_uri }}<br/>
+	<b>SKI:</b> {{ gbr.ski }}<br/>
+	<b>AKI:</b> {{ gbr.aki }}<br/>
+	<b>Serial:</b> {{ gbr.serial }}<br/>
+	<b>Not Before:</b> {{ gbr.not_before }}<br/>
+	<b>Not After:</b> {{ gbr.not_after }}
+	<p>
+	<b>Full Name:</b> {{ gbr.full_name }}<br/>
+	<b>Organization:</b> {{ gbr.organization }}<br/>
+	<b>Email:</b> {{ gbr.email_address }}<br/>
+	<b>Telephone:</b> {{ gbr.telephone }}<br/>
+	<p>
+	<b>Status</b><br/>
+	{% for status in gbr.get_status %}
+	<span class='{{ status.get_kind_display }}'>{{ status.status }}</span><br/>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% for mft in mfts %}
+<div class='detail' id='detail-mft-{{ mft.pk }}'>
+	<b>URI:</b> {{ mft.get_uri }}<br/>
+	<b>SKI:</b> {{ mft.ski }}<br/>
+	<b>AKI:</b> {{ mft.aki }}<br/>
+	<b>Serial:</b> {{ mft.serial }}<br/>
+	<b>Not Before:</b> {{ mft.not_before }}<br/>
+	<b>Not After:</b> {{ mft.not_after }}<br/>
+	<p>
+	<b>thisUpdate:</b> {{ mft.this_update }}<br/>
+	<b>nextUpdate:</b> {{ mft.next_update }}<br/>
+	<b>manifestNumber:</b> {{ mft.manifest_number }}<br/>
+	<p>
+	<b>Status</b><br/>
+	{% for status in mft.get_status %}
+	<span class='{{ status.get_kind_display }}'>{{ status.status }}</span><br/>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% for crl in crls %}
+<div class='detail' id='detail-crl-{{ crl.pk }}'>
+	<b>URI:</b> {{ crl.get_uri }}<br/>
+	<b>AKI:</b> {{ crl.aki }}<br/>
+	<p>
+	<b>thisUpdate:</b> {{ crl.this_update }}<br/>
+	<b>nextUpdate:</b> {{ crl.next_update }}<br/>
+	<b>crlNumber:</b> {{ crl.crl_number }}<br/>
+	<p>
+	<b>Status</b><br/>
+	{% for status in crl.get_status %}
+	<span class='{{ status.get_kind_display }}'>{{ status.status }}</span><br/>
+	{% endfor %}
+</div>
+{% endfor %}
+
+<script>
+function make_tooltip(nodeid) {
+    var w = document.getElementById(nodeid);
+    var tip = document.getElementById('detail-' + nodeid);
+
+    w.addEventListener("mouseover", function(evt) {
+	var x = document.getElementsByClassName('detail');
+	var i;
+	for (i = 0; i < x.length; i++) {
+	  x[i].style.display = 'none';
+	}
+	tip.style.display = 'block';
+    }, false);
+
+{% comment %}
+    w.addEventListener("mousemove", function(evt) {
+	tip.style.left = evt.clientX;
+	tip.style.top = evt.clientY;
+	//tip.style.left = evt.pageX;
+	//tip.style.top = evt.pageY;
+	//tip.style.left = evt.screenX;
+	//tip.style.top = evt.screenY;
+	tip.style.display = 'block';
+    }, false);
+{% endcomment %}
+
+{% comment %}
+    w.addEventListener("mouseleave", function (evt) {
+	tip.style.display = 'none';
+    }, false);
+{% endcomment %}
+};
+
+{% for cert in certs %}
+make_tooltip('cert-{{cert.pk}}');
+{% endfor %}
+
+{% for roa in roas %}
+make_tooltip('roa-{{roa.pk}}');
+{% endfor %}
+
+{% for gbr in gbrs %}
+make_tooltip('gbr-{{gbr.pk}}');
+{% endfor %}
+
+{% for mft in mfts %}
+make_tooltip('mft-{{mft.pk}}');
+{% endfor %}
+
+{% for crl in crls %}
+make_tooltip('crl-{{crl.pk}}');
+{% endfor %}
+
+</script>
+
+{% endblock %}
+
