@@ -1,0 +1,9 @@
+*.pyc
+configure
+config.log
+config.status
+ext/autoconf.py
+/Makefile
+rcynic/Makefile
+rcynic/rcynic
+rpki/POW/_POW.so
