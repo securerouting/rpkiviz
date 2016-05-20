@@ -20,7 +20,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 import django.http
 
-from viz import models, forms, misc
+from viz import models, forms
 from rpki.resource_set import resource_range_as, resource_range_ip
 from rpki.exceptions import BadIPResource
 
@@ -295,7 +295,7 @@ def browse(request, **kwargs):
         r = urlparse.urlparse(n.get_uri().uri)
 
         gn = gv.node(g, str(r.hostname))
-        gv.setv(gn, 'href', str(reverse('browse-cert', args=[epoch.pk, n.pk])))
+        gv.setv(gn, 'href', str(reverse('browse-cert', args=[n.pk])))
         gv.setv(gn, 'id', 'cert-%d' % n.pk)
         certs.append(n)
 
